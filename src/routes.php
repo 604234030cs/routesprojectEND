@@ -27,14 +27,25 @@ header("Content-type:application/json",true);
         return $this->response->withJson($todos);
     });
 // get all studentandparent where class_id 
-    $app->get('/standparedit/[{idclass}&&{paruser}]', function ($request, $response, $args) {
-        $sth = $this->db->prepare("SELECT * FROM student2,parent2 WHERE student2.par_user = parent2.par_user AND student2.class_id = :idclass AND parent2.par_user=:paruser");
+    $app->get('/standparedit/[{idclass}&&{paruser}&&{st_id}]', function ($request, $response, $args) {
+        $sth = $this->db->prepare("SELECT * FROM student2,parent2 WHERE student2.par_user = parent2.par_user AND student2.class_id = :idclass AND student2.st_id =:st_id AND parent2.par_user=:paruser");
         $sth->bindParam("idclass", $args['idclass']);
         $sth->bindParam("paruser", $args['paruser']);
+        $sth->bindParam("paruser", $args['paruser']);
+        $sth->bindParam("st_id", $args['st_id']);
         $sth->execute();
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
     });
+// // get all studentandparent where class_id 
+//     $app->get('/standparedit/[{idclass}&&{paruser}]', function ($request, $response, $args) {
+//         $sth = $this->db->prepare("SELECT * FROM student2,parent2 WHERE student2.par_user = parent2.par_user AND student2.class_id = :idclass AND parent2.par_user=:paruser");
+//         $sth->bindParam("idclass", $args['idclass']);
+//         $sth->bindParam("paruser", $args['paruser']);
+//         $sth->execute();
+//         $todos = $sth->fetchAll();
+//         return $this->response->withJson($todos);
+//     });
 // get all parentandstudent
     $app->get('/parentandstudent/{idclass}', function ($request, $response, $args) {
          $sth = $this->db->prepare("SELECT * FROM student2,parent2 WHERE student2.par_user = parent2.par_user AND student2.class_id = :idclass");
@@ -482,6 +493,32 @@ header("Content-type:application/json",true);
         $class_name = $sth->fetch();    
         return $this->response->withJson($class_name);
     });
+    $app->get('/checkaddsettingstudent3/[{ck_date}]', function ($request, $response, $args) {
+        $sth = $this->db->prepare("SELECT * FROM `checkstudentname2` WHERE checkstudentname2.ck_date=:ck_date");
+        $sth->bindParam("ck_date", $args['ck_date']);
+        // $sth->bindParam("tpassword", $args['tpassword']);
+        $sth->execute();
+        $class_name = $sth->fetch();    
+        return $this->response->withJson($class_name);
+    });
+    $app->get('/checkaddsettingstudent4/[{ck_date}&&{class_id}&&{ck_status}]', function ($request, $response, $args) {
+        $sth = $this->db->prepare("SELECT * FROM checkstudentname2 where checkstudentname2.ck_date=:ck_date and checkstudentname2.class_id=:class_id and checkstudentname2.ck_status=:ck_status ");
+        $sth->bindParam("ck_date", $args['ck_date']);
+        $sth->bindParam("class_id", $args['class_id']);
+        $sth->bindParam("ck_status", $args['ck_status']);
+       $sth->execute();
+       $todos = $sth->fetchAll();
+       return $this->response->withJson($todos);
+   });
+    // $app->get('/checkaddsettingstudent3/[{ck_date}&&{ck_status}', function ($request, $response, $args) {
+    //     $sth = $this->db->prepare("SELECT * FROM `checkstudentname2` WHERE checkstudentname2.ck_date =:ck_date AND checkstudentname2.ck_status =:ck_status");
+    //     $sth->bindParam("ck_date", $args['ck_date']);
+    //     $sth->bindParam("ck_status", $args['ck_status']);
+    //     // $sth->bindParam("tpassword", $args['tpassword']);
+    //     $sth->execute();
+    //     $class_name = $sth->fetch();    
+    //     return $this->response->withJson($class_name);
+    // });
 
     $app->get('/checkstudentname2/{ck_date}', function ($request, $response, $args) {
         $sth = $this->db->prepare("SELECT * FROM checkstudentname2 WHERE ck_date=:ck_date");
@@ -583,31 +620,31 @@ header("Content-type:application/json",true);
 
     
  
-    // // DELETE student
-    // $app->any('/deletest/[{s_id}]', function ($request, $response, $args) {
-    //      $sql="DELETE FROM student WHERE s_id=:s_id ";
-    //      $sth = $this->db->prepare($sql); 
-    //     $sth->bindParam("s_id", $args['s_id']);
-    //     $sth->execute();
-        
-    //     if($sth->execute()){
-    //         $dl = "Success";
-    //     }else{
-    //         $dl = "Fail";
-    //     }
-
-    //     return $this->response->withJson($dl);
-    // });
     // DELETE student
     $app->any('/deletest/[{par_user}]', function ($request, $response, $args) {
          $sql="DELETE FROM student2 WHERE par_user=:par_user ";
          $sth = $this->db->prepare($sql); 
         $sth->bindParam("par_user", $args['par_user']);
         $sth->execute();
-
+        
+        if($sth->execute()){
+            $dl = "Success";
+        }else{
+            $dl = "Fail";
+        }
 
         return $this->response->withJson($dl);
     });
+    // DELETE student
+    // $app->any('/deletest/[{par_user}]', function ($request, $response, $args) {
+    //      $sql="DELETE FROM student2 WHERE par_user=:par_user ";
+    //      $sth = $this->db->prepare($sql); 
+    //     $sth->bindParam("par_user", $args['par_user']);
+    //     $sth->execute();
+
+
+    //     return $this->response->withJson($dl);
+    // });
     // DELETE student
     $app->any('/deletepar/[{par_user}]', function ($request, $response, $args) {
          $sql="DELETE FROM parent2 WHERE par_user=:par_user ";
