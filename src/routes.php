@@ -26,6 +26,16 @@ header("Content-type:application/json",true);
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
     });
+// get all checkstudentname2  
+    $app->get('/ckstandckdate/[{st_id}&&{par_user}]', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM checkstudentname2,parent2  WHERE checkstudentname2.st_id =:st_id  
+                                    and checkstudentname2.par_user= parent2.par_user and parent2.par_user =:par_user");
+         $sth->bindParam("st_id", $args['st_id']);
+         $sth->bindParam("par_user", $args['par_user']);
+        $sth->execute();
+        $todos = $sth->fetchAll();
+        return $this->response->withJson($todos);
+    });
 // get all studentandparent where class_id 
     $app->get('/standparedit/[{idclass}&&{paruser}&&{st_id}]', function ($request, $response, $args) {
         $sth = $this->db->prepare("SELECT * FROM student2,parent2 WHERE student2.par_user = parent2.par_user AND student2.class_id = :idclass AND student2.st_id =:st_id AND parent2.par_user=:paruser");
