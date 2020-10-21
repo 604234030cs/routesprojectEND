@@ -12,6 +12,64 @@ header("Content-type:application/json",true);
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
     });
+
+// get all checkdate 
+    $app->get('/allcheckdate', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM checkdate2 ");
+        $sth->execute();
+        $todos = $sth->fetchAll();
+        return $this->response->withJson($todos);
+    });
+// get all checkdate 
+    $app->get('/allcheclass', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM classroom2 ");
+        $sth->execute();
+        $class = $sth->fetchAll();
+        return $this->response->withJson($class);
+    });
+// get all mainparent 
+    $app->get('/checkparentparid/[{par_id}]', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM parent2 where par_id=:par_id ");
+         $sth->bindParam("par_id", $args['par_id']);
+        $sth->execute();
+        $todos = $sth->fetchAll();
+        return $this->response->withJson($todos);
+    });
+// get all mainparent 
+$app->get('/checkparent2/{par_user}', function ($request, $response, $args) {
+    $sth = $this->db->prepare("SELECT * FROM parent2 WHERE par_user=:par_user");
+    $sth->bindParam("par_user", $args['par_user']);
+    // $sth->bindParam("tpassword", $args['tpassword']);
+    $sth->execute();
+    $par_user = $sth->fetch();   
+    return $this->response->withJson($par_user);
+});
+// get all checkname from date 
+    $app->get('/checknamefromdate/[{ck_date}&&{class_id}]', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM checkstudentname2,classroom2,parent2 WHERE checkstudentname2.par_user = parent2.par_user 
+                                    AND classroom2.class_id = checkstudentname2.class_id and classroom2.class_id =:class_id AND checkstudentname2.ck_date =:ck_date");
+         $sth->bindParam("ck_date", $args['ck_date']);
+         $sth->bindParam("class_id", $args['class_id']);
+        $sth->execute();
+        $todos = $sth->fetchAll();
+        return $this->response->withJson($todos);
+    });
+// get all mainparent 
+    $app->get('/classid/[{class_id}]', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM classroom2 where classroom2.class_id=:class_id");
+         $sth->bindParam("class_id", $args['class_id']);
+        $sth->execute();
+        $todos = $sth->fetchAll();
+        return $this->response->withJson($todos);
+    });
+// get all mainparent 
+    $app->get('/checkclassname/[{class_name}]', function ($request, $response, $args) {
+         $sth = $this->db->prepare("SELECT * FROM classroom2 where class_name=:class_name");
+         $sth->bindParam("class_name", $args['class_name']);
+        $sth->execute();
+        $classname = $sth->fetchAll();
+        return $this->response->withJson($classname);
+    });
 // get all mainparent  checkdate2 
     $app->get('/allcheckstudentname2', function ($request, $response, $args) {
          $sth = $this->db->prepare("SELECT * FROM checkstudentname2 ");
@@ -27,7 +85,7 @@ header("Content-type:application/json",true);
         return $this->response->withJson($todos);
     });
 // get all checkstudentname2  
-    $app->get('/ckstandckdate/[{st_id}&&{par_user}]', function ($request, $response, $args) {
+    $app->get('/f/[{st_id}&&{par_user}]', function ($request, $response, $args) {
          $sth = $this->db->prepare("SELECT * FROM checkstudentname2,parent2  WHERE checkstudentname2.st_id =:st_id  
                                     and checkstudentname2.par_user= parent2.par_user and parent2.par_user =:par_user");
          $sth->bindParam("st_id", $args['st_id']);
@@ -104,6 +162,21 @@ header("Content-type:application/json",true);
     return $this->response->withJson($status);
 
     });
+   // save edit class 
+   $app->any('/saveeditclass/[{class_id}&&{class_name}]',function ($request, $response, $args){
+    $sql = "UPDATE classroom2 SET class_name=:class_name  WHERE class_id=:class_id";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam("class_id", $args['class_id']);
+    $sth->bindParam("class_name", $args['class_name']);
+
+    if($sth->execute()){
+        $status = 'Success';
+    }else{
+        $status = 'Error';
+    }
+    return $this->response->withJson($status);
+
+    });
    // edit student 2
    $app->any('/editsts/[{s_id}&&{st_title}&&{st_name}&&{st_lassname}&&{st_class}&&{pr_user}]',function ($request, $response, $args){
     $sql = "UPDATE student SET st_title=:st_title,st_name=:st_name,st_lassname=:st_lassname,st_class=:st_class,pr_user=:pr_user  WHERE s_id=:s_id";
@@ -159,14 +232,15 @@ header("Content-type:application/json",true);
 
     });
     // edit student
-   $app->any('/editstudent2/[{st_id}&&{student_name}&&{student_sname}&&{student_nickname}&&{Student_sex}]',function ($request, $response, $args){
-    $sql = "UPDATE student2 SET student_name=:student_name,student_sname=:student_sname,student_nickname=:student_nickname,Student_sex=:Student_sex WHERE st_id=:st_id";
+   $app->any('/editstudent2/[{st_id}&&{student_title}&&{student_name}&&{student_sname}&&{student_nickname}&&{student_sex}]',function ($request, $response, $args){
+    $sql = "UPDATE student2 SET  student_title=:student_title,student_name=:student_name,student_sname=:student_sname,student_nickname=:student_nickname,student_sex=:student_sex WHERE st_id=:st_id";
     $sth = $this->db->prepare($sql);
     $sth->bindParam("st_id", $args['st_id']);
+    $sth->bindParam("student_title", $args['student_title']);
     $sth->bindParam("student_name", $args['student_name']);
     $sth->bindParam("student_sname", $args['student_sname']);
     $sth->bindParam("student_nickname", $args['student_nickname']);
-    $sth->bindParam("Student_sex", $args['Student_sex']);
+    $sth->bindParam("student_sex", $args['student_sex']);
 
     if($sth->execute()){
         $status = 'Success';
@@ -178,17 +252,11 @@ header("Content-type:application/json",true);
     });
 
     // setting student
-    $app->any('/settingstudent2/[{st_id}&&{student_name}&&{student_sname}&&{student_nickname}&&{Student_sex}&&{class_id}&&{par_user}&&{ck_date}&&{ck_status}&&{ck_receive}&&{ck_other}]',function ($request, $response, $args){
-    $sql = "UPDATE checkstudentname2 SET student_name=:student_name,student_sname=:student_sname,student_nickname=:student_nickname,Student_sex=:Student_sex,
-    class_id=:class_id,par_user=:par_user,ck_date=:ck_date,ck_status=:ck_status,ck_receive=:ck_receive,ck_other=:ck_other WHERE st_id=:st_id";
+    $app->any('/settingstudent2/[{ck_id}&&{st_id}&&{ck_date}&&{ck_status}&&{ck_receive}&&{ck_other}]',function ($request, $response, $args){
+    $sql = "UPDATE checkstudentname2 SET st_id=:st_id,ck_date=:ck_date,ck_status=:ck_status,ck_receive=:ck_receive,ck_other=:ck_other WHERE ck_id=:ck_id";
     $sth = $this->db->prepare($sql);
+    $sth->bindParam("ck_id", $args['ck_id']);
     $sth->bindParam("st_id", $args['st_id']);
-    $sth->bindParam("student_name", $args['student_name']);
-    $sth->bindParam("student_sname", $args['student_sname']);
-    $sth->bindParam("student_nickname", $args['student_nickname']);
-    $sth->bindParam("Student_sex", $args['Student_sex']);
-    $sth->bindParam("class_id", $args['class_id']);
-    $sth->bindParam("par_user", $args['par_user']);
     $sth->bindParam("ck_date", $args['ck_date']);
     $sth->bindParam("ck_status", $args['ck_status']);
     $sth->bindParam("ck_receive", $args['ck_receive']);
@@ -204,14 +272,16 @@ header("Content-type:application/json",true);
 
     });
     // edit parent
-   $app->any('/editparent2/[{par_id}&&{par_user}&&{par_name}&&{par_sname}&&{par_tel}]',function ($request, $response, $args){
-    $sql = "UPDATE parent2 SET par_user=:par_user,par_name=:par_name,par_sname=:par_sname,par_tel=:par_tel WHERE par_id=:par_id";
+   $app->any('/editparent2/[{par_id}&&{par_user}&&{par_title}&&{par_name}&&{par_sname}&&{par_tel}&&{par_address}]',function ($request, $response, $args){
+    $sql = "UPDATE parent2 SET par_user=:par_user,par_title=:par_title,par_name=:par_name,par_sname=:par_sname,par_tel=:par_tel,par_address=:par_address WHERE par_id=:par_id";
     $sth = $this->db->prepare($sql);
     $sth->bindParam("par_id", $args['par_id']);
     $sth->bindParam("par_user", $args['par_user']);
+    $sth->bindParam("par_title", $args['par_title']);
     $sth->bindParam("par_name", $args['par_name']);
     $sth->bindParam("par_sname", $args['par_sname']);
     $sth->bindParam("par_tel", $args['par_tel']);
+    $sth->bindParam("par_address", $args['par_address']);
 
     if($sth->execute()){
         $status = 'Success';
@@ -256,21 +326,14 @@ header("Content-type:application/json",true);
         // setting student 
         $app->post('/addsettingstudent2',function ($request, $response, $args){
             $input = $request->getParsedBody();
-            $sql = "INSERT INTO checkstudentname2 (Student_sex,ck_date,ck_other,ck_receive,ck_status,class_id,par_user,st_id,student_name,student_nickname,student_sname ) 
-            VALUES (:Student_sex,:ck_date,:ck_other,:ck_receive,:ck_status,:class_id,:par_user,:st_id,:student_name,:student_nickname,:student_sname)";
+            $sql = "INSERT INTO checkstudentname2 (ck_date,ck_other,ck_receive,ck_status,st_id) 
+            VALUES (:ck_date,:ck_other,:ck_receive,:ck_status,:st_id)";
             $sth = $this->db->prepare($sql);
-            $sth->bindParam("Student_sex", $input['Student_sex']);
-            $sth->bindParam("ck_date", $input['ck_date']);
+             $sth->bindParam("ck_date", $input['ck_date']);
             $sth->bindParam("ck_other", $input['ck_other']);
             $sth->bindParam("ck_receive", $input['ck_receive']);
             $sth->bindParam("ck_status", $input['ck_status']);
-            $sth->bindParam("class_id", $input['class_id']);
-            $sth->bindParam("par_user", $input['par_user']);
             $sth->bindParam("st_id", $input['st_id']);
-            $sth->bindParam("student_name", $input['student_name']);
-            $sth->bindParam("student_nickname", $input['student_nickname']);
-            $sth->bindParam("student_sname", $input['student_sname']);
-        
             
             // $input['id'] = $this->db->lastInsertId();
             if( $sth->execute()){
@@ -290,14 +353,16 @@ header("Content-type:application/json",true);
        // registerparent
        $app->post('/registerparent2', function ($request, $response) {
         $input = $request->getParsedBody();
-        $sql = "INSERT INTO parent2( par_user,par_password,par_name,par_sname,par_tel,latitude,	longitude) 
-        VALUES (:par_user,:par_password,:par_name,:par_sname,:par_tel,:latitude,:longitude)";
+        $sql = "INSERT INTO parent2(par_user,par_password,par_title,par_name,par_sname,par_tel,par_address,latitude,longitude) 
+        VALUES (:par_user,:par_password,:par_title,:par_name,:par_sname,:par_tel,:par_address,:latitude,:longitude)";
          $sth = $this->db->prepare($sql);
         $sth->bindParam("par_user", $input['par_user']);
         $sth->bindParam("par_password", $input['par_password']);
+        $sth->bindParam("par_title", $input['par_title']);
         $sth->bindParam("par_name", $input['par_name']);
         $sth->bindParam("par_sname", $input['par_sname']);
         $sth->bindParam("par_tel", $input['par_tel']);
+        $sth->bindParam("par_address", $input['par_address']);
         $sth->bindParam("latitude", $input['latitude']);
         $sth->bindParam("longitude", $input['longitude']);
         
@@ -316,56 +381,11 @@ header("Content-type:application/json",true);
         return $this->response->withJson($callback);
     });
 
-    //    // register parent
-    //    $app->post('/registerparent', function ($request, $response) {
-    //     $input = $request->getParsedBody();
-    //     $sql = "INSERT INTO parent2( par_user,par_password,par_name,par_sname,par_tel,latitude,longitude) 
-    //     VALUES (:par_user,:par_password,:par_name,:par_sname,:par_tel,:latitude,:longitude)";
 
-       
-    //      $sth1 = $this->db->prepare($sql);
-         
-    //     $sth1->bindParam("par_user", $input['par_user']);
-    //     $sth1->bindParam("par_password", $input['par_password']);
-    //     $sth1->bindParam("par_name", $input['par_name']);
-    //     $sth1->bindParam("par_sname", $input['par_sname']);
-    //     $sth1->bindParam("par_tel", $input['par_tel']);
-    //     $sth1->bindParam("latitude", $input['latitude']);
-    //     $sth1->bindParam("longitude", $input['longitude']);
-
-    //     // $sql2 = "INSERT INTO student2( student_name,student_sname,student_nickname,Student_sex,class_id,par_user) 
-    //     // VALUES (:student_name,:student_sname,:student_nickname,:Student_sex,:class_id,:par_user)";
-
-    //     // $sth2 = $this->db->prepare($sql2);
-
-    //     // $sth2->bindParam("student_name", $input['student_name']);
-    //     // $sth2->bindParam("student_sname", $input['student_sname']);
-    //     // $sth2->bindParam("student_nickname", $input['student_nickname']);
-    //     // $sth2->bindParam("Student_sex", $input['Student_sex']);
-    //     // $sth2->bindParam("class_id", $input['class_id']);
-    //     // $sth2->bindParam("par_user", $input['par_user']);
-    //     // $input['par_user'] = $this->db->lastInsertId();
-        
-    //     // $parents = $sth->fetch();   
-    //     // return $this->response->withJson($parents);
-    //     $input['par_id'] = $this->db->lastInsertId();
-    //     if($sth->execute()){
-    //         $call = array(
-    //             status => 200,
-    //             msg => 'Insert success'
-    //         );
-    //     }else{
-    //         $call = array(
-    //             'status' => 404,
-    //             'msg' => 'Insert Fail'
-    //         );
-    //     }
-    //     return $this->response->withJson($call);
-    // });
        // register
        $app->post('/addclass', function ($request, $response) {
         $input = $request->getParsedBody();
-        $sql = "INSERT INTO classroom2( class_name)VALUES (:class_name)";
+        $sql = "INSERT INTO classroom2 (class_name)VALUES(:class_name)";
          $sth = $this->db->prepare($sql);
         $sth->bindParam("class_name", $input['class_name']);
         
@@ -407,13 +427,14 @@ header("Content-type:application/json",true);
     ////
        $app->post('/addstudent2', function ($request, $response) {
         $input = $request->getParsedBody();
-        $sql = "INSERT INTO student2( student_name,student_sname,student_nickname,Student_sex,class_id,par_user)
-                VALUES (:student_name,:student_sname,:student_nickname,:Student_sex,:class_id,:par_user)";
+        $sql = "INSERT INTO student2( student_title,student_name,student_sname,student_nickname,student_sex,class_id,par_user)
+                VALUES (:student_title, :student_name,:student_sname,:student_nickname,:student_sex,:class_id,:par_user)";
          $sth = $this->db->prepare($sql);
+        $sth->bindParam("student_title", $input['student_title']);
         $sth->bindParam("student_name", $input['student_name']);
         $sth->bindParam("student_sname", $input['student_sname']);
         $sth->bindParam("student_nickname", $input['student_nickname']);
-        $sth->bindParam("Student_sex", $input['Student_sex']);
+        $sth->bindParam("student_sex", $input['student_sex']);
         $sth->bindParam("class_id", $input['class_id']);
         $sth->bindParam("par_user", $input['par_user']);
         
@@ -431,7 +452,7 @@ header("Content-type:application/json",true);
         }
         return $this->response->withJson($callback);
     }); 
-       // registerstudent checkclass
+       // registerstudent checkclassid
        $app->post('/registerstudent', function ($request, $response) {
         $input = $request->getParsedBody();
         $sql = "INSERT INTO student( st_id, st_title, st_name, st_lassname, st_class, pr_user) 
@@ -467,7 +488,7 @@ header("Content-type:application/json",true);
         $teacher_user = $sth->fetch();   
         return $this->response->withJson($teacher_user);
     });
-    $app->get('/checkparent/{par_user}', function ($request, $response, $args) {
+    $app->get('/parid/{par_user}', function ($request, $response, $args) {
         $sth = $this->db->prepare("SELECT * FROM parent2 WHERE par_user=:par_user");
         $sth->bindParam("par_user", $args['par_user']);
         // $sth->bindParam("tpassword", $args['tpassword']);
@@ -476,7 +497,7 @@ header("Content-type:application/json",true);
         return $this->response->withJson($par_user);
     });
     // check
-    $app->get('/checkclass/{class_name}', function ($request, $response, $args) {
+    $app->get('/checkclassid/{class_name}', function ($request, $response, $args) {
         $sth = $this->db->prepare("SELECT * FROM classroom2 WHERE class_name=:class_name");
         $sth->bindParam("class_name", $args['class_name']);
         // $sth->bindParam("tpassword", $args['tpassword']);
@@ -494,9 +515,9 @@ header("Content-type:application/json",true);
         return $this->response->withJson($class_name);
     });
 // 
-    $app->get('/checkaddsettingstudent2/[{st_id}&&{ck_date}]', function ($request, $response, $args) {
-        $sth = $this->db->prepare("SELECT * FROM checkstudentname2 WHERE st_id=:st_id and ck_date=:ck_date");
-        $sth->bindParam("st_id", $args['st_id']);
+    $app->get('/checkaddsettingstudent2/[{ck_id}&&{ck_date}]', function ($request, $response, $args) {
+        $sth = $this->db->prepare("SELECT * FROM checkstudentname2 WHERE ck_id=:ck_id and ck_date=:ck_date");
+        $sth->bindParam("ck_id", $args['ck_id']);
         $sth->bindParam("ck_date", $args['ck_date']);
         // $sth->bindParam("tpassword", $args['tpassword']);
         $sth->execute();
@@ -512,7 +533,7 @@ header("Content-type:application/json",true);
         return $this->response->withJson($class_name);
     });
     $app->get('/checkaddsettingstudent4/[{ck_date}&&{class_id}&&{ck_status}]', function ($request, $response, $args) {
-        $sth = $this->db->prepare("SELECT * FROM checkstudentname2 where checkstudentname2.ck_date=:ck_date and checkstudentname2.class_id=:class_id and checkstudentname2.ck_status=:ck_status ");
+        $sth = $this->db->prepare("SELECT * FROM student2,checkstudentname2,classroom2,parent2 where student2.st_id = checkstudentname2.st_id and student2.par_user = parent2.par_user and checkstudentname2.ck_date=:ck_date and student2.class_id = classroom2.class_id   and student2.class_id=:class_id and checkstudentname2.ck_status=:ck_status  ");
         $sth->bindParam("ck_date", $args['ck_date']);
         $sth->bindParam("class_id", $args['class_id']);
         $sth->bindParam("ck_status", $args['ck_status']);
@@ -520,15 +541,7 @@ header("Content-type:application/json",true);
        $todos = $sth->fetchAll();
        return $this->response->withJson($todos);
    });
-    // $app->get('/checkaddsettingstudent3/[{ck_date}&&{ck_status}', function ($request, $response, $args) {
-    //     $sth = $this->db->prepare("SELECT * FROM `checkstudentname2` WHERE checkstudentname2.ck_date =:ck_date AND checkstudentname2.ck_status =:ck_status");
-    //     $sth->bindParam("ck_date", $args['ck_date']);
-    //     $sth->bindParam("ck_status", $args['ck_status']);
-    //     // $sth->bindParam("tpassword", $args['tpassword']);
-    //     $sth->execute();
-    //     $class_name = $sth->fetch();    
-    //     return $this->response->withJson($class_name);
-    // });
+
 
     $app->get('/checkstudentname2/{ck_date}', function ($request, $response, $args) {
         $sth = $this->db->prepare("SELECT * FROM checkstudentname2 WHERE ck_date=:ck_date");
@@ -561,7 +574,7 @@ header("Content-type:application/json",true);
         return $this->response->withJson($todos);
     });
     // teacher
-    $app->get('/teacherall/[user={teacher_user}&&pass={teacher_password}]', function ($request, $response, $args) {
+    $app->get('/teacherall/[{teacher_user}&&{teacher_password}]', function ($request, $response, $args) {
         $sth = $this->db->prepare("SELECT * FROM teacher2  WHERE teacher_user=:teacher_user and teacher_password=:teacher_password");
         $sth->bindParam("teacher_user", $args['teacher_user']);
         $sth->bindParam("teacher_password", $args['teacher_password']);
@@ -616,25 +629,30 @@ header("Content-type:application/json",true);
 
     
  
- 
-    // Search parent
-    $app->get('/search/[{query}]', function ($request, $response, $args) {
-         $sth = $this->db->prepare("SELECT * FROM parents WHERE pr_name LIKE :query ORDER BY pr_name");
-        $query = "%".$args['query']."%";
-        $sth->bindParam("query", $query);
-        $sth->execute();
-        $todos = $sth->fetchAll();
-        return $this->response->withJson($todos);
-    });
+
  
 
     
  
     // DELETE student
-    $app->any('/deletest/[{par_user}]', function ($request, $response, $args) {
-         $sql="DELETE FROM student2 WHERE par_user=:par_user ";
+    $app->any('/deletest/[{st_id}]', function ($request, $response, $args) {
+         $sql="DELETE FROM student2 WHERE st_id=:st_id ";
          $sth = $this->db->prepare($sql); 
-        $sth->bindParam("par_user", $args['par_user']);
+        $sth->bindParam("st_id", $args['st_id']);
+        $sth->execute();
+        if($sth->execute()){
+            $dl = "Success";
+        }else{
+            $dl = "Fail";
+        }
+
+        return $this->response->withJson($dl);
+    });
+    // DELETE class
+    $app->any('/deleteclass/[{class_id}]', function ($request, $response, $args) {
+         $sql="DELETE FROM classroom2 WHERE class_id=:class_id ";
+         $sth = $this->db->prepare($sql); 
+        $sth->bindParam("class_id", $args['class_id']);
         $sth->execute();
         
         if($sth->execute()){
@@ -645,21 +663,12 @@ header("Content-type:application/json",true);
 
         return $this->response->withJson($dl);
     });
-    // DELETE student
-    // $app->any('/deletest/[{par_user}]', function ($request, $response, $args) {
-    //      $sql="DELETE FROM student2 WHERE par_user=:par_user ";
-    //      $sth = $this->db->prepare($sql); 
-    //     $sth->bindParam("par_user", $args['par_user']);
-    //     $sth->execute();
 
-
-    //     return $this->response->withJson($dl);
-    // });
     // DELETE student
-    $app->any('/deletepar/[{par_user}]', function ($request, $response, $args) {
-         $sql="DELETE FROM parent2 WHERE par_user=:par_user ";
+    $app->any('/deletepar/[{par_id}]', function ($request, $response, $args) {
+         $sql="DELETE FROM parent2 WHERE par_id=:par_id ";
          $sth = $this->db->prepare($sql); 
-        $sth->bindParam("par_user", $args['par_user']);
+        $sth->bindParam("par_id", $args['par_id']);
         $sth->execute();
         
         if($sth->execute()){
@@ -670,29 +679,22 @@ header("Content-type:application/json",true);
 
         return $this->response->withJson($dl);
     });
-    // // DELETE student 
-    // $app->any('/deletestandpar/[{st_id}&&{par_id}]', function ($request, $response, $args) {
-    //      $sql="DELETE  FROM student2,parent2 WHERE student2.st_id=:st_id  ";
-    //      $sql1="DELETE  FROM parent2 WHERE parent2.par_id=:par_id  ";
-    //      $sth = $this->db->prepare($sql); 
-    //      $sth1 = $this->db->prepare($sql1); 
-    //     $sth->bindParam("st_id", $args['st_id']);
-    //     $sth1->bindParam("par_id", $args['par_id']);
-    //     // $sth->execute();
-    //     // $sth->execute1();
-    //     if($sth->execute()){
-    //         $dlstandpar = "Success";
-    //     }else{
-    //         $dlstandpar = "Fail";
-    //     }
-    //     // if($sth->execute1()){
-    //     //     $dlstandpar = "Success";
-    //     // }else{
-    //     //     $dlstandpar = "Fail";
-    //     // }
+    // DELETE checknam
+    $app->any('/deletecheckname/[{ck_id}]', function ($request, $response, $args) {
+         $sql="DELETE FROM checkstudentname2 WHERE ck_id=:ck_id ";
+         $sth = $this->db->prepare($sql); 
+        $sth->bindParam("ck_id", $args['ck_id']);
+        $sth->execute();
+        
+        if($sth->execute()){
+            $dl = "Success";
+        }else{
+            $dl = "Fail";
+        }
 
-    //     return $this->response->withJson($dlstandpar);
-    // });
+        return $this->response->withJson($dl);
+    });
+
 
     $app->put('/testst/[{s_id}]',function ($request, $response, $args){
         $input = $request->getParsedBody();
@@ -705,5 +707,42 @@ header("Content-type:application/json",true);
         $input['s_id'] = $args['s_id'];
         return $this->response->withJson($input);
     });
+
+
+        // edit parent lat&long
+   $app->any('/editteacherlatlong/[{teacher_id}&&{latitude}&&{longitude}]',function ($request, $response, $args){
+    $sql = "UPDATE teacher2 SET teacher_latitude=:latitude,teacher_longitude=:longitude WHERE teacher_id=:teacher_id";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam("teacher_id", $args['teacher_id']);
+    $sth->bindParam("teacher_latitude", $args['teacher_latitude']);
+    $sth->bindParam("teacher_longitude", $args['teacher_longitude']);
+    if($sth->execute()==true){
+        $status = 'Success';
+    }else{
+        $status = 'Error';
+    }
+    return $this->response->withJson($status);
+
+    });
+
+
+    
+$app->get('/search/[{query}]', function ($request, $response, $args) {
+    $sth = $this->db->prepare("SELECT * FROM parent2 WHERE par_name LIKE :query ORDER BY par_name");
+   $query = "%".$args['query']."%";
+   $sth->bindParam("query", $query);
+   $sth->execute();
+   $todos = $sth->fetchAll();
+   return $this->response->withJson($todos);
+});
+    
+$app->get('/searchclassroom/[{query}]', function ($request, $response, $args) {
+    $sth = $this->db->prepare("SELECT * FROM classroom2 WHERE class_name LIKE :query ORDER BY class_name");
+   $query = "%".$args['query']."%";
+   $sth->bindParam("query", $query);
+   $sth->execute();
+   $todos = $sth->fetchAll();
+   return $this->response->withJson($todos);
+});
 
     
