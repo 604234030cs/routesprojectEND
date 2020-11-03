@@ -5,6 +5,77 @@ header('Access-Control-Allow-Headers: Content-Type');
 header('Access-Control-Allow-Methods: GET, PUT, POST, DELETE, OPTIONS');
 header("Content-type:application/json",true);
 
+
+//login parent
+$app->get('/parLogin/[user={par_user}&&pass={par_password}]', function ($request, $response, $args) {
+    $sth = $this->db->prepare("SELECT * FROM parent2 WHERE par_user=:par_user and par_password=:par_password");
+    $sth->bindParam("par_user", $args['par_user']);
+    $sth->bindParam("par_password", $args['par_password']);
+    $sth->execute();
+    $todos = $sth->fetch();   
+    return $this->response->withJson($todos);
+});
+
+    // parentall
+$app->get('/parentall/[user={par_user}&&pass={par_password}]', function ($request, $response, $args) {
+        $sth = $this->db->prepare("SELECT * FROM parent2  WHERE par_user=:par_user and par_password=:par_password");
+        $sth->bindParam("par_user", $args['par_user']);
+        $sth->bindParam("par_password", $args['par_password']);
+        $sth->execute();
+        $todos = $sth->fetch();   
+        return $this->response->withJson($todos);
+});
+
+       // edit parent 
+$app->any('/editparent22/[{par_id}&&{par_title}&&{par_name}&&{par_sname}&&{par_tel}]',function ($request, $response, $args){
+    $sql = "UPDATE parent2 SET par_title=:par_title,par_name=:par_name,par_sname=:par_sname,par_tel=:par_tel WHERE par_id=:par_id";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam("par_id", $args['par_id']);
+    $sth->bindParam("par_title", $args['par_title']);
+    $sth->bindParam("par_name", $args['par_name']);
+    $sth->bindParam("par_sname", $args['par_sname']);
+    $sth->bindParam("par_tel", $args['par_tel']);
+    if($sth->execute()==true){
+        $status = 'Success';
+    }else{
+        $status = 'Error';
+    }
+    return $this->response->withJson($status);
+
+});
+
+      // edit parent lat&long
+$app->any('/editparentlatlong/[{par_id}&&{latitude}&&{longitude}]',function ($request, $response, $args){
+    $sql = "UPDATE parent2 SET latitude=:latitude,longitude=:longitude WHERE par_id=:par_id";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam("par_id", $args['par_id']);
+    $sth->bindParam("latitude", $args['latitude']);
+    $sth->bindParam("longitude", $args['longitude']);
+    if($sth->execute()==true){
+        $status = 'Success';
+    }else{
+        $status = 'Error';
+    }
+    return $this->response->withJson($status);
+
+});
+
+     // edit parent lat&longNull
+$app->any('/editparentlatlongNull/[{par_id}&&{latitude}&&{longitude}]',function ($request, $response, $args){
+    $sql = "UPDATE parent2 SET latitude=:latitude,longitude=:longitude WHERE par_id=:par_id";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam("par_id", $args['par_id']);
+    $sth->bindParam("latitude", $args['latitude']);
+    $sth->bindParam("longitude", $args['longitude']);
+    if($sth->execute()==true){
+        $status = 'Success';
+    }else{
+        $status = 'Error';
+    }
+    return $this->response->withJson($status);
+
+});
+/////////////////////////////////////////////////////////////////////////// teacher app
 // get all mainparent 
     $app->get('/allparent', function ($request, $response, $args) {
          $sth = $this->db->prepare("SELECT * FROM parent2 ");
@@ -15,13 +86,13 @@ header("Content-type:application/json",true);
 
 // get all checkdate 
     $app->get('/allcheckdate', function ($request, $response, $args) {
-         $sth = $this->db->prepare("SELECT * FROM checkdate2 ");
+         $sth = $this->db->prepare("SELECT * FROM checkdate2 ORDER BY check_id DESC ");
         $sth->execute();
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
     });
 // get all checkdate 
-    $app->get('/allcheclass', function ($request, $response, $args) {
+    $app->get('/allcheckclass', function ($request, $response, $args) {
          $sth = $this->db->prepare("SELECT * FROM classroom2 ");
         $sth->execute();
         $class = $sth->fetchAll();
@@ -46,8 +117,9 @@ $app->get('/checkparent2/{par_user}', function ($request, $response, $args) {
 });
 // get all checkname from date 
     $app->get('/checknamefromdate/[{ck_date}&&{class_id}]', function ($request, $response, $args) {
-         $sth = $this->db->prepare("SELECT * FROM checkstudentname2,classroom2,parent2 WHERE checkstudentname2.par_user = parent2.par_user 
-                                    AND classroom2.class_id = checkstudentname2.class_id and classroom2.class_id =:class_id AND checkstudentname2.ck_date =:ck_date");
+         $sth = $this->db->prepare("SELECT * FROM student2,checkstudentname2,classroom2,parent2 where student2.st_id = checkstudentname2.st_id 
+         and student2.par_user = parent2.par_user and checkstudentname2.ck_date=:ck_date and student2.class_id = classroom2.class_id 
+         and student2.class_id=:class_id ORDER BY student2.student_name ASC ");
          $sth->bindParam("ck_date", $args['ck_date']);
          $sth->bindParam("class_id", $args['class_id']);
         $sth->execute();
@@ -116,7 +188,7 @@ $app->get('/checkparent2/{par_user}', function ($request, $response, $args) {
 //     });
 // get all parentandstudent
     $app->get('/parentandstudent/{idclass}', function ($request, $response, $args) {
-         $sth = $this->db->prepare("SELECT * FROM student2,parent2 WHERE student2.par_user = parent2.par_user AND student2.class_id = :idclass");
+         $sth = $this->db->prepare("SELECT * FROM student2,parent2 WHERE student2.par_user = parent2.par_user AND student2.class_id = :idclass ORDER BY student2.student_name ASC");
          $sth->bindParam("idclass", $args['idclass']);
         $sth->execute();
         $todos = $sth->fetchAll();
