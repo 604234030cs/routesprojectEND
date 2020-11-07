@@ -78,7 +78,7 @@ $app->any('/editparentlatlongNull/[{par_id}&&{latitude}&&{longitude}]',function 
 /////////////////////////////////////////////////////////////////////////// teacher app
 // get all mainparent 
     $app->get('/allparent', function ($request, $response, $args) {
-         $sth = $this->db->prepare("SELECT * FROM parent2 ");
+         $sth = $this->db->prepare("SELECT * FROM parent2 ORDER BY parent2.par_name ASC");
         $sth->execute();
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
@@ -91,13 +91,7 @@ $app->any('/editparentlatlongNull/[{par_id}&&{latitude}&&{longitude}]',function 
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
     });
-// get all checkdate 
-    $app->get('/allcheckclass', function ($request, $response, $args) {
-         $sth = $this->db->prepare("SELECT * FROM classroom2 ");
-        $sth->execute();
-        $class = $sth->fetchAll();
-        return $this->response->withJson($class);
-    });
+
 // get all mainparent 
     $app->get('/checkparentparid/[{par_id}]', function ($request, $response, $args) {
          $sth = $this->db->prepare("SELECT * FROM parent2 where par_id=:par_id ");
@@ -195,8 +189,8 @@ $app->get('/checkparent2/{par_user}', function ($request, $response, $args) {
         return $this->response->withJson($todos);
     });
 // get all mainparent
-    $app->get('/class', function ($request, $response, $args) {
-        $sth = $this->db->prepare("SELECT * FROM `classroom2` ");
+    $app->get('/allclass', function ($request, $response, $args) {
+        $sth = $this->db->prepare("SELECT * FROM `classroom2` ORDER BY `class_name` ASC");
         $sth->execute();
         $todos = $sth->fetchAll();
         return $this->response->withJson($todos);
