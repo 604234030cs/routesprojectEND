@@ -59,6 +59,21 @@ $app->any('/editparentlatlong/[{par_id}&&{latitude}&&{longitude}]',function ($re
     return $this->response->withJson($status);
 
 });
+      // edit parent lat&long
+$app->any('/editteacherlatlong/[{teacher_id}&&{teacher_latitude}&&{teacher_longitude}]',function ($request, $response, $args){
+    $sql = "UPDATE teacher2 SET teacher_latitude=:teacher_latitude,teacher_longitude=:teacher_longitude WHERE teacher_id=:teacher_id";
+    $sth = $this->db->prepare($sql);
+    $sth->bindParam("teacher_id", $args['teacher_id']);
+    $sth->bindParam("teacher_latitude", $args['teacher_latitude']);
+    $sth->bindParam("teacher_longitude", $args['teacher_longitude']);
+    if($sth->execute()==true){
+        $status = 'Success';
+    }else{
+        $status = 'Error';
+    }
+    return $this->response->withJson($status);
+
+});
 
      // edit parent lat&longNull
 $app->any('/editparentlatlongNull/[{par_id}&&{latitude}&&{longitude}]',function ($request, $response, $args){
@@ -591,7 +606,7 @@ $app->get('/checkparent2/{par_user}', function ($request, $response, $args) {
         return $this->response->withJson($class_name);
     });
     $app->get('/checkaddsettingstudent3/[{ck_date}]', function ($request, $response, $args) {
-        $sth = $this->db->prepare("SELECT * FROM `checkstudentname2` WHERE checkstudentname2.ck_date=:ck_date");
+        $sth = $this->db->prepare("SELECT * FROM `checkdate2`,`checkstudentname2`, WHERE checkstudentname2.ck_date=checkdate2.check_data and checkdate2.check_data =:ck_date ");
         $sth->bindParam("ck_date", $args['ck_date']);
         // $sth->bindParam("tpassword", $args['tpassword']);
         $sth->execute();
@@ -773,25 +788,6 @@ $app->get('/checkparent2/{par_user}', function ($request, $response, $args) {
         $input['s_id'] = $args['s_id'];
         return $this->response->withJson($input);
     });
-
-
-        // edit parent lat&long
-   $app->any('/editteacherlatlong/[{teacher_id}&&{latitude}&&{longitude}]',function ($request, $response, $args){
-    $sql = "UPDATE teacher2 SET teacher_latitude=:latitude,teacher_longitude=:longitude WHERE teacher_id=:teacher_id";
-    $sth = $this->db->prepare($sql);
-    $sth->bindParam("teacher_id", $args['teacher_id']);
-    $sth->bindParam("teacher_latitude", $args['teacher_latitude']);
-    $sth->bindParam("teacher_longitude", $args['teacher_longitude']);
-    if($sth->execute()==true){
-        $status = 'Success';
-    }else{
-        $status = 'Error';
-    }
-    return $this->response->withJson($status);
-
-    });
-
-
     
 $app->get('/search/[{query}]', function ($request, $response, $args) {
     $sth = $this->db->prepare("SELECT * FROM parent2 WHERE par_name LIKE :query ORDER BY par_name");
